@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"cl.biblioteca.app"},{"l":"cl.biblioteca.dominio"},{"l":"cl.biblioteca.persistencia"},{"l":"cl.biblioteca.servicio"},{"l":"cl.biblioteca.web"}];updateSearchResults();

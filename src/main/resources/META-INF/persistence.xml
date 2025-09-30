@@ -1,0 +1,33 @@
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence" version="3.0">
+    <persistence-unit name="libraryPU" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <!-- Entidades -->
+        <class>cl.biblioteca.dominio.Libro</class>
+        <class>cl.biblioteca.dominio.Revista</class>
+        <class>cl.biblioteca.dominio.Video</class>
+        <class>cl.biblioteca.dominio.Socio</class>
+        <class>cl.biblioteca.dominio.Prestamo</class>
+
+        <properties>
+            <!-- SQLite -->
+            <property name="jakarta.persistence.jdbc.driver" value="org.sqlite.JDBC"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlite:library.db"/>
+            <property name="hibernate.dialect" value="org.hibernate.community.dialect.SQLiteDialect"/>
+
+            <!-- Mostrar SQL (usar CLAVES de Hibernate, no las JPA estándar) -->
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+
+            <!-- Crear al arrancar y DROPEAR al cerrar el EntityManagerFactory -->
+            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+
+            <!-- Cargar DATA tras crear el esquema -->
+            <!-- seed.sql debe estar en el CLASSPATH (p.ej. src/main/resources/seed.sql) -->
+            <property name="jakarta.persistence.sql-load-script-source" value="seed.sql"/>
+            <!-- Alternativa equivalente de Hibernate:
+            <property name="hibernate.hbm2ddl.import_files" value="seed.sql"/>
+            -->
+        </properties>
+    </persistence-unit>
+</persistence>
