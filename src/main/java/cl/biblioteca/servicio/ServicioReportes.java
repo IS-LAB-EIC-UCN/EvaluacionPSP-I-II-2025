@@ -77,4 +77,20 @@ public class ServicioReportes {
             em.close();
         }
     }
+
+    public String estadisticasInventarioComoJson() {
+        EntityManager em = JpaUtil.em();
+        try {
+            var libros   = em.createQuery("from Libro",   Libro.class).getResultList();
+            var revistas = em.createQuery("from Revista", Revista.class).getResultList();
+            var videos   = em.createQuery("from Video",   Video.class).getResultList();
+
+
+            // return "el string json"
+            return null;
+
+        } finally {
+            em.close();
+        }
+    }
 }
