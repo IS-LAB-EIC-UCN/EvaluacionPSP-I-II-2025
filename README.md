@@ -1,5 +1,7 @@
 # Primera Evaluación PSP II-2025
 
+## Puntaje: 100pts.
+
 ---
 
 Una pequeña biblioteca universitaria mantiene desde hace años un sistema para registrar **préstamos**, **devoluciones** 
@@ -108,20 +110,21 @@ los mismos datos de entrada.
 
 ## Considerandos
 
-### Refactorizaciones
+### Lo que usted debe hacer:
 
-Implemente **solo un patrón** para solucionar la problemática escogida, ya sea para Operaciones de reporte/exportación requeridas
-o para Reglas de multa requeridas. Cree un archivo Explicacion.txt que explique el fundamento de su solución según la
-problemática escogida.
+1. Cree un archivo Explicacion.txt que explique cuales son los patrones más adecuados para solucionar la problemática
+que enfrenta el sistema. Use los conceptos de propiedades y principios de diseño para justificar su respuesta. 25pts
+2. Implemente **solo un patrón** para solucionar la problemática escogida, ya sea para Operaciones de reporte/exportación requeridas
+o para Reglas de multa requeridas. 75pts.
 
-### Ejecución
+### Ejecución:
 
 ```bash
 mvn -DskipTests=true clean compile exec:java
 ```
 Para detener la ejecución del sistema presionar las teclas **Ctrl+C**.
 
-### Documentación
+### Documentación:
 
 [Documentación del Proyecto](documentacion/apidocs/index.html)
 
