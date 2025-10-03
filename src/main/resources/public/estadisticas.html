@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Estadísticas de Inventario</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- jQuery (CDN); usa la misma versión que ya tengas en tu index si prefieres -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <style>
+        :root {
+          --bg: #0f172a;        /* slate-900 */
+          --card: #111827;      /* gray-900 */
+          --muted: #9ca3af;     /* gray-400 */
+          --fg: #e5e7eb;        /* gray-200 */
+          --accent: #22c55e;    /* green-500 */
+          --accent-2: #38bdf8;  /* sky-400 */
+          --accent-3: #f59e0b;  /* amber-500 */
+          --danger: #ef4444;    /* red-500 */
+        }
+        * { box-sizing: border-box; }
+        body {
+          margin: 0; padding: 24px;
+          font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+          background: radial-gradient(1200px 800px at 20% -10%, #172554, transparent 60%), var(--bg);
+          color: var(--fg);
+        }
+        header { display:flex; align-items:baseline; gap:16px; margin-bottom: 18px; }
+        h1 { margin: 0; font-size: 24px; letter-spacing: .3px; }
+        .muted { color: var(--muted); font-size: 14px; }
+        .row { display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+        .card {
+          background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+          border: 1px solid rgba(255,255,255,.08);
+          border-radius: 16px; padding: 16px;
+          box-shadow: 0 6px 18px rgba(0,0,0,.25);
+        }
+        .kpi { font-size: 32px; font-weight: 700; margin: 4px 0 0; }
+        .label { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+        .accent  { color: var(--accent); }
+        .accent2 { color: var(--accent-2); }
+        .accent3 { color: var(--accent-3); }
+        .danger  { color: var(--danger); }
+        .grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .controls { margin: 12px 0 24px; display:flex; gap:10px; align-items:center; }
+        button {
+          background: #1f2937; color: var(--fg); border: 1px solid rgba(255,255,255,.15);
+          padding: 10px 14px; border-radius: 10px; cursor: pointer;
+        }
+        button:hover { background:#111827; }
+        code.badge {
+          background: #1f2937; padding: 2px 8px; border-radius: 999px; border:1px solid rgba(255,255,255,.12);
+          font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+          font-size: 12px; color: var(--muted);
+        }
+        .footer { margin-top: 24px; color: var(--muted); font-size: 12px; }
+        .error {
+          background: rgba(239, 68, 68, .12);
+          border: 1px solid rgba(239, 68, 68, .35);
+          color: #fecaca;
+          padding: 12px 14px;
+          border-radius: 12px;
+          margin: 12px 0 0;
+          display: none;
+        }
+         a{color:#93c5fd}
+    </style>
+</head>
+<body>
+<header>
+    <h1>Estadísticas de Inventario</h1>
+    <span class="muted">Vista de solo lectura</span>
+</header>
+
+<div class="controls">
+    <button id="recargar">Recargar estadísticas</button>
+    <span class="muted">Fuente: <code class="badge">GET /api/inventory/stats</code></span>
+    <span id="actualizado" class="muted"></span>
+    <a href="/public/index.html" style="margin-left:auto">⬅ Volver al inicio</a>
+</div>
+
+<div id="error" class="error"></div>
+
+<section class="row">
+    <!-- Totales -->
+    <div class="card">
+        <div class="label">Materiales totales</div>
+        <div id="kpi-materiales" class="kpi accent">—</div>
+    </div>
+
+    <!-- Libros -->
+    <div class="card">
+        <div class="label">Libros</div>
+        <div id="kpi-libros" class="kpi accent2">—</div>
+        <div class="grid-2 muted" style="margin-top:8px">
+            <div>Páginas totales</div><div id="kpi-paginas">—</div>
+            <div>Páginas promedio</div><div id="kpi-promedio">—</div>
+        </div>
+    </div>
+
+    <!-- Revistas -->
+    <div class="card">
+        <div class="label">Revistas</div>
+        <div id="kpi-revistas" class="kpi accent3">—</div>
+    </div>
+
+    <!-- Videos -->
+    <div class="card">
+        <div class="label">Videos</div>
+        <div id="kpi-videos" class="kpi">—</div>
+        <div class="grid-2 muted" style="margin-top:8px">
+            <div>Duración total (min)</div><div id="kpi-duracion">—</div>
+        </div>
+    </div>
+</section>
+
+<div class="footer">
+    Si algún valor aparece en “—”, recarga e inspecciona la consola (F12) por si hay errores de red.
+</div>
+
+<script>
+    (function(){
+      const $err = $('#error');
+      function mostrarError(msg, xhr) {
+        console.error('[estadisticas] Error:', msg, xhr);
+        $err.text(msg + (xhr ? ' (HTTP ' + xhr.status + ')' : '')).show();
+      }
+
+      function setText(id, val) {
+        $(id).text(val ?? '—');
+      }
+
+      function formateaNumero(n) {
+        if (typeof n !== 'number') return '—';
+        return n.toLocaleString('es-CL');
+      }
+
+      function cargar() {
+        $err.hide().empty();
+        $.getJSON('/api/inventory/stats')
+          .done(function(d){
+            // Estructura esperada:
+            // { libros:{total, paginas_totales, paginas_promedio}, revistas:{total}, videos:{total, duracion_total_min}, totales:{materiales} }
+            const libros   = d.libros   || {};
+            const revistas = d.revistas || {};
+            const videos   = d.videos   || {};
+            const totales  = d.totales  || {};
+
+            setText('#kpi-materiales', formateaNumero(totales.materiales));
+            setText('#kpi-libros',     formateaNumero(libros.total));
+            setText('#kpi-paginas',    formateaNumero(libros.paginas_totales));
+            setText('#kpi-promedio',   (typeof libros.paginas_promedio === 'number') ? libros.paginas_promedio.toFixed(1) : '—');
+            setText('#kpi-revistas',   formateaNumero(revistas.total));
+            setText('#kpi-videos',     formateaNumero(videos.total));
+            setText('#kpi-duracion',   formateaNumero(videos.duracion_total_min));
+
+            $('#actualizado').text('Actualizado: ' + new Date().toLocaleString('es-CL'));
+          })
+          .fail(function(xhr){
+            mostrarError('No se pudo obtener /api/inventory/stats', xhr);
+          });
+      }
+
+      $('#recargar').on('click', cargar);
+      cargar(); // carga inicial
+    })();
+</script>
+</body>
+</html>

@@ -1,31 +1,87 @@
 <!doctype html>
 <html lang="es">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Biblioteca — Legado</title>
-    <script src="jquery-3.7.1.min.js"></script>
+    <meta charset="utf-8" />
+    <title>Biblioteca — Inicio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-        body{font-family: system-ui, sans-serif; margin: 2rem}
-        table{border-collapse: collapse; width: 100%}
-        th, td{border: 1px solid #ddd; padding: .5rem}
-        th{background: #f5f5f5}
-        .btn{padding:.5rem .8rem; border:1px solid #aaa; background:#fff; cursor:pointer}
+        :root {
+          --bg: #0f172a; --fg: #e5e7eb; --muted:#9ca3af;
+          --card: #111827; --border: rgba(255,255,255,.12);
+          --hover: rgba(255,255,255,.06);
+        }
+        *{box-sizing:border-box}
+        body{
+          margin:0; padding:32px;
+          font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial;
+          background: radial-gradient(1200px 800px at 20% -10%, #172554, transparent 60%), var(--bg);
+          color:var(--fg);
+        }
+        header{display:flex; flex-wrap:wrap; gap:12px; align-items:baseline; margin-bottom:22px}
+        h1{margin:0; font-size:26px}
+        p.lead{margin:0; color:var(--muted)}
+        .nav {
+          display:flex; gap:14px; margin:16px 0 26px; flex-wrap:wrap;
+        }
+        a.btn {
+          display:inline-block; padding:12px 16px; border-radius:12px;
+          border:1px solid var(--border); text-decoration:none; color:var(--fg);
+          background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+          cursor:pointer;
+        }
+        a.btn:hover { background:var(--hover); }
+        .grid{display:grid; gap:18px; grid-template-columns:repeat(auto-fit, minmax(260px,1fr));}
+        .card{
+          background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+          border:1px solid var(--border); border-radius:16px; padding:20px
+        }
+        .title{font-size:18px; margin:0 0 6px}
+        .desc{color:var(--muted); font-size:14px; margin:0 0 10px}
+        code.badge{
+          background:#1f2937; padding:2px 8px; border-radius:999px; border:1px solid var(--border);
+          font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px;
+          color:var(--muted);
+        }
+        footer{margin-top:28px; color:var(--muted); font-size:12px}
     </style>
 </head>
 <body>
-<h1>Sistema de Biblioteca (LEGADO)</h1>
-<p>
-    <button id="reload" class="btn">Recargar inventario</button>
-</p>
-<table id="inv">
-    <thead>
-    <tr><th>Tipo</th><th>Título</th><th>Meta</th></tr>
-    </thead>
-    <tbody></tbody>
-</table>
+<header>
+    <h1>Biblioteca — Inicio</h1>
+    <p class="lead">Elige la vista que quieres abrir.</p>
+</header>
 
+<!-- Botones de acceso directo -->
+<div class="nav">
+    <a class="btn" href="/public/inventario.html">📚 Inventario</a>
+    <a class="btn" href="/public/estadisticas.html">📈 Estadísticas</a>
+    <a class="btn" href="/public/multas.html">💸 Multas</a>
+</div>
 
-<script src="app.js"></script>
+<!-- Tarjetas informativas (opcional) -->
+<section class="grid">
+    <article class="card">
+        <h2 class="title">Inventario</h2>
+        <p class="desc">Listado resumido de materiales con <code class="badge">type</code>, <code class="badge">title</code> y <code class="badge">meta</code>.</p>
+        <div class="desc">Fuente de datos: <code class="badge">GET /api/inventory</code></div>
+    </article>
+
+    <article class="card">
+        <h2 class="title">Estadísticas</h2>
+        <p class="desc">KPIs por tipo: cantidad de libros/revistas/videos, páginas totales/promedio y duración total.</p>
+        <div class="desc">Fuente de datos: <code class="badge">GET /api/inventory/stats</code></div>
+    </article>
+
+    <article class="card">
+        <h2 class="title">Multas</h2>
+        <p class="desc">Calcula el monto y muestra el desglose aplicando reglas combinables (exención, descuento, sobrecargo).</p>
+        <div class="desc">Fuente de datos: <code class="badge">GET /api/fees/:prestamoId</code></div>
+    </article>
+</section>
+
+<footer>
+    Los archivos se sirven bajo <code class="badge">/public</code>.
+    Asegúrate de tener <code class="badge">/public/inventario.html</code>, <code class="badge">/public/estadisticas.html</code> y <code class="badge">/public/multas.html</code>.
+</footer>
 </body>
 </html>

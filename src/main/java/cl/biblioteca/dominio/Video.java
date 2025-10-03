@@ -1,5 +1,6 @@
 package cl.biblioteca.dominio;
 
+import cl.biblioteca.servicio.visitor.VisitanteMaterial;
 import jakarta.persistence.*;
 
 /**
@@ -59,4 +60,7 @@ public class Video extends MaterialBiblioteca {
      * @param formato formato físico o digital (puede ser {@code null}).
      */
     public void definirFormato(String formato) { this.formato = formato; }
+
+    public void aceptar(VisitanteMaterial v) { v.visitar(this); }
+
 }

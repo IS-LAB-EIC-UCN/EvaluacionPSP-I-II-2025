@@ -1,5 +1,6 @@
 package cl.biblioteca.dominio;
 
+import cl.biblioteca.servicio.visitor.VisitanteMaterial;
 import jakarta.persistence.*;
 
 /**
@@ -62,4 +63,7 @@ public class Libro extends MaterialBiblioteca {
      * @param paginas número de páginas (debe ser ≥ 0).
      */
     public void definirPaginas(int paginas) { this.paginas = paginas; }
+
+    public void aceptar(VisitanteMaterial v) { v.visitar(this); }
+
 }

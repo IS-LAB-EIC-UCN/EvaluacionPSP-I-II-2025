@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Calcular Multa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
+    <style>
+        body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial;margin:0;padding:24px;background:#0f172a;color:#e5e7eb}
+        .card{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:16px;max-width:720px}
+        .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+        label{display:flex;gap:8px;align-items:center}
+        input[type="number"]{padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#111827;color:#e5e7eb;width:120px}
+        button{padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:#1f2937;color:#e5e7eb;cursor:pointer}
+        button:hover{background:#111827}
+        pre{background:#111827;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px;white-space:pre-wrap}
+        .muted{color:#9ca3af}
+        .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:12px}
+        .kpi{background:#111827;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px}
+        .kpi h4{margin:0 0 6px;font-size:14px;color:#9ca3af}
+        .kpi .val{font-size:24px}
+        a{color:#93c5fd}
+    </style>
+</head>
+<body>
+<h1>Calcular Multa (Decorator)</h1>
+<p class="muted">Endpoint: <code>GET /api/fees/:prestamoId?exencionFeriado=&descuentoPremium=&sobrecargoAltaDemanda=</code></p>
+
+<div class="card" style="margin-top:12px">
+    <div class="row">
+        <label>Préstamo ID: <input id="pid" type="number" min="1" value="1"></label>
+        <label><input id="exencion" type="checkbox"> Exención por feriado</label>
+        <label><input id="descuento" type="checkbox"> Descuento premium</label>
+        <label><input id="sobrecargo" type="checkbox"> Sobrecargo alta demanda</label>
+        <button id="calcular">Calcular</button>
+        <a href="/public/index.html" style="margin-left:auto">⬅ Volver al inicio</a>
+    </div>
+
+    <div class="kpis">
+        <div class="kpi"><h4>Monto final</h4><div class="val" id="monto">—</div></div>
+        <div class="kpi"><h4>Días de atraso</h4><div class="val" id="atraso">—</div></div>
+        <div class="kpi"><h4>Base</h4><div class="val" id="base">—</div></div>
+        <div class="kpi"><h4>Tras exención</h4><div class="val" id="ex">—</div></div>
+        <div class="kpi"><h4>Tras descuento</h4><div class="val" id="desc">—</div></div>
+    </div>
+
+    <h3>Respuesta JSON</h3>
+    <pre id="json">—</pre>
+</div>
+
+<script>
+    function q(value){ return value ? '1' : '0'; }
+    function n(x){ return (typeof x==='number') ? x.toLocaleString('es-CL') : '—'; }
+
+    function run(){
+      const id = $('#pid').val();
+      const ex = $('#exencion').is(':checked');
+      const de = $('#descuento').is(':checked');
+      const so = $('#sobrecargo').is(':checked');
+
+      const url = `/api/fees/${id}?exencionFeriado=${q(ex)}&descuentoPremium=${q(de)}&sobrecargoAltaDemanda=${q(so)}`;
+      $.getJSON(url)
+        .done(d => {
+          $('#monto').text(n(d.monto));
+          $('#atraso').text(n(d.diasAtraso));
+          $('#base').text(n(d.desglose?.base));
+          $('#ex').text(n(d.desglose?.despuesExencion));
+          $('#desc').text(n(d.desglose?.despuesDescuento));
+          $('#json').text(JSON.stringify(d, null, 2));
+        })
+        .fail(xhr => {
+          $('#json').text(`Error ${xhr.status}\n${xhr.responseText || ''}`);
+          $('#monto,#atraso,#base,#ex,#desc').text('—');
+        });
+    }
+    $('#calcular').on('click', run);
+    // Carga inicial opcional:
+    // run();
+</script>
+</body>
+</html>

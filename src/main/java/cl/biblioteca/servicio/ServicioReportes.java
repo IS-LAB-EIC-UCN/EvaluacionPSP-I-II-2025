@@ -2,6 +2,7 @@ package cl.biblioteca.servicio;
 
 import cl.biblioteca.dominio.*;
 import cl.biblioteca.persistencia.JpaUtil;
+import cl.biblioteca.servicio.visitor.VisitanteEstadisticasInventarioJson;
 import jakarta.persistence.EntityManager;
 import java.util.*;
 
@@ -79,16 +80,18 @@ public class ServicioReportes {
     }
 
     public String estadisticasInventarioComoJson() {
-        EntityManager em = JpaUtil.em();
+        var em = cl.biblioteca.persistencia.JpaUtil.em();
         try {
-            var libros   = em.createQuery("from Libro",   Libro.class).getResultList();
-            var revistas = em.createQuery("from Revista", Revista.class).getResultList();
-            var videos   = em.createQuery("from Video",   Video.class).getResultList();
+            var libros   = em.createQuery("from Libro",   cl.biblioteca.dominio.Libro.class).getResultList();
+            var revistas = em.createQuery("from Revista", cl.biblioteca.dominio.Revista.class).getResultList();
+            var videos   = em.createQuery("from Video",   cl.biblioteca.dominio.Video.class).getResultList();
 
+            var vis = new VisitanteEstadisticasInventarioJson();
+            for (var l : libros)   l.aceptar(vis);
+            for (var r : revistas) r.aceptar(vis);
+            for (var v : videos)   v.aceptar(vis);
 
-            // return "el string json"
-            return null;
-
+            return vis.comoJsonString();
         } finally {
             em.close();
         }

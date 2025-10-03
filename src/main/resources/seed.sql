@@ -11,7 +11,7 @@ INSERT INTO Revista (id, titulo, autorOEditor, numeroEdicion) VALUES (2,'IEEE So
 
 INSERT INTO Video (id, titulo, autorOEditor, duracionMinutos, formato) VALUES (1,'Agile Conference Talk','J. Doe',75,'DVD');
 
-INSERT INTO Prestamo (socio_id, idMaterial, tipoMaterial, fechaInicio, fechaVencimiento, fechaDevolucion) VALUES (1,1,'Libro','2025-09-20','2025-09-25','2025-09-27');
-INSERT INTO Prestamo (socio_id, idMaterial, tipoMaterial, fechaInicio, fechaVencimiento, fechaDevolucion) VALUES (2,2,'Revista','2025-09-23','2025-09-28',NULL);
-INSERT INTO Prestamo (socio_id, idMaterial, tipoMaterial, fechaInicio, fechaVencimiento, fechaDevolucion) VALUES (2,3,'Libro','2025-09-15','2025-09-21','2025-09-26');
-INSERT INTO Prestamo (socio_id, idMaterial, tipoMaterial, fechaInicio, fechaVencimiento, fechaDevolucion) VALUES (1,1,'Video','2025-09-20','2025-09-28','2025-09-29');
+INSERT INTO Prestamo (socio_id, idMaterial, tipoMaterial, fechaInicio, fechaVencimiento, fechaDevolucion) VALUES (1,1,'Libro','2025-09-20 00:00:00.000','2025-09-25 00:00:00.000','2025-09-27 00:00:00.000');
+INSERT INTO Prestamo (socio_id, idMaterial, tipoMaterial, fechaInicio, fechaVencimiento, fechaDevolucion) VALUES (2,2,'Revista','2025-09-23 00:00:00.000','2025-09-28 00:00:00.000',NULL);
+INSERT INTO Prestamo (socio_id, idMaterial, tipoMaterial, fechaInicio, fechaVencimiento, fechaDevolucion) VALUES (2,3,'Libro','2025-09-15 00:00:00.000','2025-09-21 00:00:00.000','2025-09-26 00:00:00.000');
+INSERT INTO Prestamo (socio_id, idMaterial, tipoMaterial, fechaInicio, fechaVencimiento, fechaDevolucion) VALUES (1,1,'Video','2025-09-20 00:00:00.000','2025-09-28 00:00:00.000','2025-09-29 00:00:00.000');

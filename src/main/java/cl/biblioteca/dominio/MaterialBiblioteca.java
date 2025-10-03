@@ -1,5 +1,6 @@
 package cl.biblioteca.dominio;
 
+import cl.biblioteca.servicio.visitor.VisitanteMaterial;
 import jakarta.persistence.*;
 
 /**
@@ -72,4 +73,7 @@ public abstract class MaterialBiblioteca {
      * @param a nombre del autor/editor (puede ser {@code null}).
      */
     public void definirAutorOEditor(String a) { this.autorOEditor = a; }
+
+    public abstract void aceptar(VisitanteMaterial visitante);
+
 }

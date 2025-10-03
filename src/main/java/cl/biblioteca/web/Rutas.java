@@ -2,8 +2,8 @@ package cl.biblioteca.web;
 
 import cl.biblioteca.dominio.*;
 import cl.biblioteca.persistencia.JpaUtil;
-import cl.biblioteca.servicio.CalculadoraMultas;
 import cl.biblioteca.servicio.ServicioReportes;
+import cl.biblioteca.servicio.decorator.*;
 import io.javalin.Javalin;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
@@ -45,7 +45,7 @@ public class Rutas {
 
         // Inventario resumido (JSON) — mantiene el formato del sistema legado
         app.get("/api/inventory", ctx -> {
-            List<Map<String,Object>> inv = new ServicioReportes().resumenInventario();
+            List<Map<String, Object>> inv = new ServicioReportes().resumenInventario();
             ctx.json(inv);
         });
 
@@ -98,10 +98,75 @@ public class Rutas {
             }
         });
 
-        // Demostración de cálculo de multas (LEGADO, con banderas)
-        app.get("/api/fee-demo", ctx -> {
-            CalculadoraMultas calc = new CalculadoraMultas(true, true, true);
-            ctx.json(Map.of("example", "Ver CalculadoraMultas.java para banderas condicionales"));
+        app.get("/api/fee-demo", ctx -> ctx.redirect("/public/multas.html"));
+
+        app.get("/api/inventory/stats", ctx -> {
+            String json = new ServicioReportes().estadisticasInventarioComoJson();
+            ctx.contentType("application/json; charset=utf-8");
+            ctx.result(json);
         });
+
+        // En cl.biblioteca.web.Rutas#registrar(Javalin app)
+        app.get("/api/fees/{prestamoId}", ctx -> {
+            // Lee y valida el path param como Long (Javalin devuelve 400 si no convierte)
+            long id = ctx.pathParamAsClass("prestamoId", Long.class).get();
+
+            // Flags por query param (0/1, true/false, si/sí)
+            boolean exencionFeriado       = parseBool(ctx.queryParam("exencionFeriado"));
+            boolean descuentoPremium      = parseBool(ctx.queryParam("descuentoPremium"));
+            boolean sobrecargoAltaDemanda = parseBool(ctx.queryParam("sobrecargoAltaDemanda"));
+
+            var em = JpaUtil.em();
+            try {
+                Prestamo p = em.find(Prestamo.class, id);
+                if (p == null) {
+                    ctx.status(404).json(Map.of("error", "Prestamo no encontrado: " + id));
+                    return;
+                }
+
+                // Construcción de cadena Decorator (orden legado): Base -> Exención -> Descuento -> Sobrecargo
+                var base = new MultaBase();
+                var c1 = exencionFeriado       ? new ExencionFeriado(base) : base;
+                var c2 = descuentoPremium      ? new DescuentoPremium(c1) : c1;
+                var c3 = sobrecargoAltaDemanda ? new SobrecargoAltaDemanda(c2) : c2;
+
+                double m0 = base.calcular(p);
+                double m1 = c1.calcular(p);
+                double m2 = c2.calcular(p);
+                double m3 = c3.calcular(p);
+
+                long diasAtraso = calcularDiasAtraso(p);
+
+                ctx.contentType("application/json; charset=utf-8");
+                ctx.json(Map.of(
+                        "prestamoId", id,
+                        "reglas", Map.of(
+                                "exencionFeriado", exencionFeriado,
+                                "descuentoPremium", descuentoPremium,
+                                "sobrecargoAltaDemanda", sobrecargoAltaDemanda
+                        ),
+                        "diasAtraso", diasAtraso,
+                        "desglose", Map.of(
+                                "base", m0,
+                                "despuesExencion", m1,
+                                "despuesDescuento", m2,
+                                "final", m3
+                        ),
+                        "monto", m3
+                ));
+            } finally {
+                em.close();
+            }
+        });
+    }
+    private static boolean parseBool(String v) {
+        if (v == null) return false;
+        return "1".equals(v) || "true".equalsIgnoreCase(v) || "si".equalsIgnoreCase(v) || "sí".equalsIgnoreCase(v);
+    }
+
+    private static long calcularDiasAtraso(Prestamo p) {
+        if (p.obtenerFechaDevolucion() == null || p.obtenerFechaVencimiento() == null) return 0;
+        return Math.max(0, java.time.temporal.ChronoUnit.DAYS.between(
+                p.obtenerFechaVencimiento(), p.obtenerFechaDevolucion()));
     }
 }

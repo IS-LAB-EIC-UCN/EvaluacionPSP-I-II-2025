@@ -1,5 +1,6 @@
 package cl.biblioteca.dominio;
 
+import cl.biblioteca.servicio.visitor.VisitanteMaterial;
 import jakarta.persistence.*;
 
 /**
@@ -40,4 +41,8 @@ public class Revista extends MaterialBiblioteca {
      * @param numeroEdicion valor del fascículo (idealmente ≥ 1).
      */
     public void definirNumeroEdicion(int numeroEdicion) { this.numeroEdicion = numeroEdicion; }
+
+    public void aceptar(VisitanteMaterial v) { v.visitar(this); }
+
+
 }
